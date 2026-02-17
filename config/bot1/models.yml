@@ -1,0 +1,28 @@
+# Model definitions with formatting rules
+# Model names must match custom model names in LiteLLM configuration
+# Formatting rules are applied to LLM responses before returning to users
+
+models:
+  # DeepSeek-V3.2 with reasoning output
+  "openrouter/deepseek/deepseek-v3.2":
+    description: "DeepSeek V3.2 with reasoning capabilities"
+    default_params:
+      temperature: 0.7
+      max_tokens: 64000
+    formatting:
+      reasoning:
+        enabled: true
+
+  # Gemini Pro
+  gemini-3-pro-preview-thinking:
+    description: "Gemini 3 Pro Preview with thinking"
+    default_params:
+      temperature: 0.7
+      max_tokens: 64000
+    formatting: {}
+
+# Default formatting rules applied to all models
+default_formatting:
+  markdown_code_blocks: true
+  trim_whitespace: true
+  escape_html: false

@@ -1,0 +1,20 @@
+[flake8]
+max-line-length = 120
+extend-ignore =
+    E203,
+    W503,
+    D100,
+    D104
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    build,
+    dist,
+    .eggs,
+    *.egg,
+    bots/pc/tests/
+max-complexity = 9
+show-source = true
+statistics = true

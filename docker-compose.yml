@@ -1,0 +1,173 @@
+services:
+  # PostgreSQL for LiteLLM persistence
+  postgres:
+    image: postgres:15-alpine
+    container_name: zulip-bot-postgres
+    env_file:
+      - secrets/postgres.env
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - litellm-internal
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U litellm"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # LiteLLM with database backend
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: zulip-bot-litellm
+    command:
+      - "--config"
+      - "/app/config.yaml"
+      - "--port"
+      - "4000"
+      - "--detailed_debug"
+    ports:
+      - "127.0.0.1:4000:4000"  # LOCALHOST ONLY - CRITICAL FOR SECURITY
+    env_file:
+      - secrets/litellm.env
+      - secrets/postgres.env
+    environment:
+      - STORE_MODEL_IN_DB=True  # Add this line
+    volumes:
+      - ./config/litellm_config.yml:/app/config.yaml:ro
+    networks:
+      - litellm-internal
+      - bot-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Ollama for local models
+  ollama:
+    image: ollama/ollama:latest
+    container_name: zulip-bot-ollama
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - bot-network
+    restart: unless-stopped
+    # Uncomment if you have NVIDIA GPU
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  # Zulip Bot Instance 1 - General Assistant
+  zulip-bot-testbot1:
+    build:
+      context: ./bots
+      dockerfile: Dockerfile
+    container_name: zulip-bot-testbot1
+    command: ["python", "-u", "-m", "src.main"]
+    volumes:
+      - ./secrets/zuliprc-testbot1:/app/zuliprc:ro
+      - ./config/bot1:/app/config
+      - ./config/admins.yml:/app/admins.yml:ro
+    environment:
+      - BOT_NAME=testbot1
+      - LITELLM_URL=http://litellm:4000
+      - OLLAMA_URL=http://ollama:11434
+      - LOG_LEVEL=INFO
+      - PC_API_URL=http://zulip-bot-testbot1-pc:8080
+      - TZ=Asia/Shanghai
+    env_file:
+      - secrets/pc.env
+      - secrets/litellm.env
+    networks:
+      - bot-network
+    depends_on:
+      - litellm
+      - zulip-bot-testbot1-pc
+    restart: unless-stopped
+
+  # PC sidecar for bot testbot1
+  zulip-bot-testbot1-pc:
+    build:
+      context: ./bots
+      dockerfile: Dockerfile.pc
+    container_name: zulip-bot-testbot1-pc
+    volumes:
+      - zulip-bot-testbot1-pc-data:/pc
+    env_file:
+      - secrets/pc.env
+    environment:
+      - LOG_LEVEL=INFO
+      - PC_ROOT=/pc
+      - PC_HOST=0.0.0.0
+      - PC_PORT=8080
+      - TZ=Asia/Shanghai
+    networks:
+      - bot-network
+    restart: unless-stopped
+
+  # Zulip Bot Instance 2 - Code Helper (optional, comment out if not needed)
+  # Follow the template in AGENTS.md "Multi‑Bot Deployment Template" section
+  # Example for bot named "coder":
+  #
+  # zulip-bot-coder:
+  #   build:
+  #     context: ./bots
+  #     dockerfile: Dockerfile
+  #   container_name: zulip-bot-coder
+  #   volumes:
+  #     - ./secrets/zuliprc-coder:/app/zuliprc:ro
+  #     - ./config/bot2:/app/config
+  #     - ./config/admins.yml:/app/admins.yml:ro
+  #   environment:
+  #     - BOT_NAME=coder
+  #     - LITELLM_URL=http://litellm:4000
+  #     - OLLAMA_URL=http://ollama:11434
+  #     - LOG_LEVEL=INFO
+  #     - PC_API_URL=http://zulip-bot-coder-pc:8080
+
+  #   env_file:
+  #     - secrets/pc.env
+  #   networks:
+  #     - bot-network
+  #   depends_on:
+  #     - litellm
+  #     - zulip-bot-coder-pc
+  #   restart: unless-stopped
+  #
+  # zulip-bot-coder-pc:
+  #   build:
+  #     context: ./bots
+  #     dockerfile: Dockerfile.pc
+  #   container_name: zulip-bot-coder-pc
+  #   volumes:
+  #     - zulip-bot-coder-pc-data:/pc
+  #   env_file:
+  #     - secrets/pc.env
+  #   environment:
+  #     - LOG_LEVEL=INFO
+  #     - PC_ROOT=/pc
+  #     - PC_HOST=0.0.0.0
+  #     - PC_PORT=8080
+  #   networks:
+  #     - bot-network
+  #   restart: unless-stopped
+  #
+  # Add to volumes section:
+  # zulip-bot-coder-pc-data:
+
+volumes:
+  postgres-data:
+  ollama-data:
+  zulip-bot-testbot1-pc-data:
+
+networks:
+  litellm-internal:
+    driver: bridge
+    internal: true  # No external access
+  bot-network:
+    driver: bridge
+    internal: false  # Needs external for Zulip API access

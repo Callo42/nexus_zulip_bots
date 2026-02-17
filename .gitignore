@@ -1,0 +1,54 @@
+# Secrets
+secrets/
+!secrets/*.example
+*.env
+
+# Data
+data/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+.precommit-venv/
+
+# Pre-commit
+.pre-commit-config.yaml~
+
+# Lint/Type checking reports
+bandit-report.json
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build artifacts
+build/
+!build/checks/
+!build/*.sh
+!build/*.py
+!build/*.mk
+dist/
+*.egg-info/
+
+# Config (keep templates only)
+config/admins.yml
+config/bot*/state.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Opencode - only commit agent directory
+.opencode/*
+!.opencode/agent

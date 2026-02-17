@@ -1,0 +1,58 @@
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    python3-venv \
+    curl \
+    wget \
+    git \
+    nano \
+    vim \
+    jq \
+    tree \
+    htop \
+    net-tools \
+    iputils-ping \
+    telnet \
+    rsync \
+    tar \
+    gzip \
+    bzip2 \
+    unzip \
+    zip \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY pc_server/requirements.txt .
+RUN pip3 install --break-system-packages --no-cache-dir -r requirements.txt
+
+RUN mkdir -p /pc/files
+RUN mkdir -p /pc/history
+RUN mkdir -p /pc/logs
+
+RUN mkdir -p /app/pc_server
+COPY pc_server/api.py /app/pc_server/
+COPY pc_server/pc_manager.py /app/pc_server/
+COPY pc_server/history_manager.py /app/pc_server/
+COPY pc_server/tool_manager.py /app/pc_server/
+COPY pc_server/tools/ /app/pc_server/tools/
+COPY pc_server/routes/ /app/pc_server/routes/
+COPY pc_server/pc_utils/ /app/pc_server/pc_utils/
+COPY src/utils/security.py /app/src/utils/security.py
+RUN touch /app/pc_server/__init__.py /app/src/__init__.py /app/src/utils/__init__.py
+
+RUN useradd -m pcuser && chown -R pcuser:pcuser /app /pc
+USER pcuser
+
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+
+WORKDIR /app
+ENV PYTHONPATH=/app
+CMD ["python3", "-m", "pc_server.api"]

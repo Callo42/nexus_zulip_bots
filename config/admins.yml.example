@@ -1,0 +1,5 @@
+# Configure admin users who can control the bot
+# Copy this to admins.yml and add your email(s)
+admins:
+  - email: "your-admin-email@example.com"
+  - email: "another-admin@example.com"
