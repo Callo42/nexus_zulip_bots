@@ -39,7 +39,7 @@ jobs:
 
       - name: Lint with flake8
         run: |
-          flake8 --max-line-length=100 --extend-ignore=E203,W503 bots/
+          flake8 --max-line-length=100 --extend-ignore=E203,W503 --max-complexity=9 bots/
 
       - name: Type check with mypy
         run: |
@@ -47,7 +47,7 @@ jobs:
 
       - name: Security scan with bandit
         run: |
-          bandit --skip=B101,B311 -r bots/ --exclude bots/pc/tests/
+          bandit --skip=B101,B311 -r bots/ --exclude bots/pc_server/tests/
 
       - name: Check trailing whitespace
         run: |
