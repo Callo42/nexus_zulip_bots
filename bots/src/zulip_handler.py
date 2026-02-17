@@ -471,8 +471,9 @@ class ZulipHandler:
 
             sender_full_name = self._get_sender_display_name(msg)
             mention = f"@**{sender_full_name}**"
-            if llm_response.startswith(mention):
-                reply_content = llm_response
+            stripped_response = llm_response.lstrip()
+            if stripped_response.startswith(mention):
+                reply_content = stripped_response
             else:
                 reply_content = f"{mention} {llm_response}"
 
