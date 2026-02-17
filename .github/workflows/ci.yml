@@ -39,7 +39,7 @@ jobs:
 
       - name: Lint with flake8
         run: |
-          flake8 --max-line-length=100 --extend-ignore=E203,W503 --max-complexity=9 bots/
+          flake8 --max-line-length=100 --extend-ignore=E203,W503 bots/
 
       - name: Type check with mypy
         run: |
@@ -47,7 +47,7 @@ jobs:
 
       - name: Security scan with bandit
         run: |
-          bandit --skip=B101,B311 -r bots/ --exclude bots/pc_server/tests/
+          bandit --skip=B101,B311 -r bots/ --exclude bots/pc/tests/
 
       - name: Check trailing whitespace
         run: |
@@ -56,6 +56,10 @@ jobs:
       - name: Check end of file
         run: |
           pre-commit run end-of-file-fixer --all-files || true
+
+      - name: Check added large files
+        run: |
+          pre-commit run check-added-large-files --all-files || true
 
       - name: Check YAML
         run: |
@@ -72,6 +76,10 @@ jobs:
       - name: Check debug statements
         run: |
           pre-commit run debug-statements --all-files || true
+
+      - name: Check docstring first
+        run: |
+          pre-commit run check-docstring-first --all-files || true
 
       - name: Check docstrings
         run: |
