@@ -13,7 +13,6 @@ from pc_server.tools.gitlab import (
     GitLabCacheManager,
     GitLabClient,
     GitLabDocIndexer,
-    GitLabError,
     GitLabSearchEngine,
 )
 from pc_server.tools.registry import ToolRegistry
@@ -28,7 +27,11 @@ class TestGitLabClient(unittest.TestCase):
 
     @patch("pc_server.tools.gitlab.client.requests.Session.get")
     def test_list_directory_success(self, mock_get):
-        """Test successful directory listing."""
+        """Test successful directory listing.
+
+        Args:
+            mock_get: Mocked requests Session.get method.
+        """
         mock_response = Mock()
         mock_response.json.return_value = [
             {"name": "README.md", "type": "blob", "path": "README.md"},
@@ -47,7 +50,11 @@ class TestGitLabClient(unittest.TestCase):
 
     @patch("pc_server.tools.gitlab.client.requests.Session.get")
     def test_get_file_content_success(self, mock_get):
-        """Test successful file reading."""
+        """Test successful file reading.
+
+        Args:
+            mock_get: Mocked requests Session.get method.
+        """
         mock_response = Mock()
         mock_response.text = "# Test Content"
         mock_response.raise_for_status.return_value = None
@@ -59,7 +66,11 @@ class TestGitLabClient(unittest.TestCase):
 
     @patch("pc_server.tools.gitlab.client.requests.Session.get")
     def test_get_file_content_not_found(self, mock_get):
-        """Test file reading with 404 error."""
+        """Test file reading with 404 error.
+
+        Args:
+            mock_get: Mocked requests Session.get method.
+        """
         mock_response = Mock()
         http_error = requests.exceptions.HTTPError("Not Found")
         http_error.response = Mock(status_code=404)
@@ -194,7 +205,11 @@ class TestToolExecution(unittest.TestCase):
 
     @patch("pc_server.tools.gitlab.client.requests.Session.get")
     def test_itpGitLab_list_directory_execution(self, mock_get):
-        """Test executing itpGitLab_list_directory tool."""
+        """Test executing itpGitLab_list_directory tool.
+
+        Args:
+            mock_get: Mocked requests Session.get method.
+        """
         mock_response = Mock()
         mock_response.json.return_value = [
             {"name": "README.md", "type": "blob", "path": "README.md"},
@@ -212,7 +227,11 @@ class TestToolExecution(unittest.TestCase):
 
     @patch("pc_server.tools.gitlab.client.requests.Session.get")
     def test_itpGitLab_read_file_execution(self, mock_get):
-        """Test executing itpGitLab_read_file tool."""
+        """Test executing itpGitLab_read_file tool.
+
+        Args:
+            mock_get: Mocked requests Session.get method.
+        """
         mock_response = Mock()
         mock_response.text = "# Test README"
         mock_response.raise_for_status.return_value = None
@@ -230,8 +249,7 @@ class TestToolExecution(unittest.TestCase):
         """Test gitlab_search_repos with empty query."""
         result = self.registry.execute_tool("gitlab_search_repos", {"query": ""})
 
-        # Empty query should return either success=False with error or success=True with empty results
-        # Depending on whether repos are available and how the search is processed
+        # Empty query returns success=True with empty results
         self.assertIn("success", result)
         self.assertIsInstance(result["success"], bool)
 
