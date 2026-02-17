@@ -96,13 +96,13 @@ make -f build/code-quality.mk clean
 
 ```bash
 # Run all tests
-PYTHONPATH=/home/ember/zulip-llm-bot/bots python -m pytest bots/pc_server/tests/
+PYTHONPATH=$HOME/zulip-llm-bot/bots python -m pytest bots/pc_server/tests/
 
 # Run single test file
-PYTHONPATH=/home/ember/zulip-llm-bot/bots python -m pytest bots/pc_server/tests/test_gitlab_tools.py
+PYTHONPATH=$HOME/zulip-llm-bot/bots python -m pytest bots/pc_server/tests/test_gitlab_tools.py
 
 # Run single test method
-PYTHONPATH=/home/ember/zulip-llm-bot/bots python -m pytest bots/pc_server/tests/test_gitlab_tools.py::TestGitLabTools::test_tool_registration -v
+PYTHONPATH=$HOME/zulip-llm-bot/bots python -m pytest bots/pc_server/tests/test_gitlab_tools.py::TestGitLabTools::test_tool_registration -v
 ```
 
 ### Docker
@@ -143,7 +143,7 @@ docker-compose up -d --build zulip-bot-testbot1
 **Critical**: Code quality tools use **Conda base** environment (not Docker)
 
 ```bash
-export PATH="/home/ember/miniconda3/bin:$PATH"
+export PATH="$HOME/miniconda3/bin:$PATH"
 conda run -n base python --version  # Python 3.11
 ```
 
@@ -543,8 +543,8 @@ Dangerous commands are blocked in `pc_utils/security.py`:
 
 | Issue | Solution |
 |-------|----------|
-| Conda not found | `export PATH="/home/ember/miniconda3/bin:$PATH"` |
-| Import errors in tests | Use `PYTHONPATH=/home/ember/zulip-llm-bot/bots` prefix |
+| Conda not found | `export PATH="$HOME/miniconda3/bin:$PATH"` |
+| Import errors in tests | Use `PYTHONPATH=$HOME/zulip-llm-bot/bots` prefix |
 | Black formatting conflicts | Accept Black's output (consistency > preference) |
 | pre-commit fails | Run `make -f build/code-quality.mk format` first |
 | Docker service fails to start | Check `secrets/` files exist and are valid |

@@ -35,9 +35,15 @@ build/
 dist/
 *.egg-info/
 
+# Todo list
+todo.txt
+
 # Config (keep templates only)
 config/admins.yml
+config/bot*/policies.yml
 config/bot*/state.json
+!config/bot*/state.json.example
+!config/*/policies.yml.example
 
 # IDE
 .vscode/

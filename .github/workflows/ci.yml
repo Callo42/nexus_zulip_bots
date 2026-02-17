@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r bots/requirements.txt
+          pip install -r bots/pc_server/requirements.txt
+          pip install black isort flake8 mypy bandit pytest
+
+      - name: Lint with black
+        run: |
+          black --check --line-length=100 bots/
+
+      - name: Lint with isort
+        run: |
+          isort --check-only --profile=black --line-length=100 bots/
+
+      - name: Lint with flake8
+        run: |
+          flake8 --max-line-length=120 --extend-ignore=E203,W503,D100,D104 --max-complexity=9 bots/
+
+      - name: Type check with mypy
+        run: |
+          mypy --ignore-missing-imports --follow-imports=silent bots/
+
+      - name: Security scan with bandit
+        run: |
+          bandit --skip=B101,B311 -r bots/
+
+      - name: Run tests
+        run: |
+          PYTHONPATH=$PWD/bots python -m pytest bots/pc_server/tests/ -v

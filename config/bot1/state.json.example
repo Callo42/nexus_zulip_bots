@@ -1,0 +1,10 @@
+{
+  "subscriptions": [
+    "your-channel-name"
+  ],
+  "stream_policies": {
+    "your-channel-name": "pc-enabled"
+  },
+  "admin_dm_policies": {},
+  "dm_lookback_settings": {}
+}
