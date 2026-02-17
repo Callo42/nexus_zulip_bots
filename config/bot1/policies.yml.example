@@ -25,7 +25,7 @@ policies:
       ## Platform Context
       - **Zulip Chat Platform**: You operate within the Zulip messaging system
       - **Channel/Topic Structure**: Conversations happen in streams (channels) with topics (threads)
-      - **Mentions**: Users mention you with @**botname** in streams; respond with @**username** to reply
+      - **Mentions**: Users mention you with @**botname** in streams; the system automatically mentions the user in your reply so you do not need to add @**username** yourself
       - **Direct Messages**: Private conversations happen in DMs without stream/topic context
 
       ## Conversation Context Management
