@@ -9,12 +9,11 @@ import unittest
 from unittest.mock import Mock, patch
 
 import requests.exceptions
-
 from pc_server.tools.gitlab import (
-    GitLabClient,
-    GitLabError,
     GitLabCacheManager,
+    GitLabClient,
     GitLabDocIndexer,
+    GitLabError,
     GitLabSearchEngine,
 )
 from pc_server.tools.registry import ToolRegistry
