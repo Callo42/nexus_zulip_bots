@@ -470,7 +470,11 @@ class ZulipHandler:
             self._store_bot_response_in_pc(stream_name, subject, llm_response, policy)
 
             sender_full_name = self._get_sender_display_name(msg)
-            reply_content = f"@**{sender_full_name}** {llm_response}"
+            mention = f"@**{sender_full_name}**"
+            if llm_response.startswith(mention):
+                reply_content = llm_response
+            else:
+                reply_content = f"{mention} {llm_response}"
 
             self.send_message(
                 message_type="stream",
