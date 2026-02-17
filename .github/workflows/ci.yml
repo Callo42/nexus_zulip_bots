@@ -26,7 +26,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r bots/requirements.txt
           pip install -r bots/pc_server/requirements.txt
-          pip install black isort flake8 mypy bandit pytest
+          pip install black isort flake8 flake8-bugbear flake8-docstrings mypy bandit pytest pre-commit-hooks
+          pip install types-PyYAML types-requests
 
       - name: Lint with black
         run: |
@@ -38,7 +39,7 @@ jobs:
 
       - name: Lint with flake8
         run: |
-          flake8 --max-line-length=120 --extend-ignore=E203,W503,D100,D104 --max-complexity=9 bots/
+          flake8 --max-line-length=100 --extend-ignore=E203,W503 --max-complexity=9 bots/
 
       - name: Type check with mypy
         run: |
@@ -46,7 +47,35 @@ jobs:
 
       - name: Security scan with bandit
         run: |
-          bandit --skip=B101,B311 -r bots/
+          bandit --skip=B101,B311 -r bots/ --exclude bots/pc_server/tests/
+
+      - name: Check trailing whitespace
+        run: |
+          pre-commit run trailing-whitespace --all-files || true
+
+      - name: Check end of file
+        run: |
+          pre-commit run end-of-file-fixer --all-files || true
+
+      - name: Check YAML
+        run: |
+          pre-commit run check-yaml --all-files || true
+
+      - name: Check JSON
+        run: |
+          pre-commit run check-json --all-files || true
+
+      - name: Check merge conflicts
+        run: |
+          pre-commit run check-merge-conflict --all-files || true
+
+      - name: Check debug statements
+        run: |
+          pre-commit run debug-statements --all-files || true
+
+      - name: Check docstrings
+        run: |
+          python build/checks/check_docs.py --all
 
       - name: Run tests
         run: |
