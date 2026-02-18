@@ -59,6 +59,7 @@ import time
 from typing import Any, Dict, List, Optional
 
 import requests
+from src.formatters import convert_latex_to_zulip_katex
 
 logger = logging.getLogger(__name__)
 
@@ -118,7 +119,7 @@ class LLMClient:
         """
         # Use new history and tool enabled generation
         try:
-            return self.generate_response_with_history_and_tools(
+            response = self.generate_response_with_history_and_tools(
                 messages=messages,
                 policy=policy,
                 user=user,
@@ -126,6 +127,7 @@ class LLMClient:
                 topic=topic,
                 user_email=user_email,
             )
+            return convert_latex_to_zulip_katex(response)
         except Exception as e:
             logger.error(f"LLM generation failed: {e}", exc_info=True)
             # Don't expose internal error details to users
