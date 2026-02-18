@@ -240,7 +240,8 @@ class ZulipHandler:
         else:
             # Handle as conversation
             logger.info(f"Processing DM conversation from {sender_email}")
-            response = self._handle_dm_conversation(sender_email, content)
+            sender_full_name = self._get_sender_display_name(msg)
+            response = self._handle_dm_conversation(sender_email, content, sender_full_name)
 
             if response:
                 self.send_message(message_type="private", to=sender_email, content=response)
@@ -300,13 +301,20 @@ class ZulipHandler:
         except Exception as e:
             logger.error(f"Failed to store bot DM response in PC: {e}", exc_info=True)
 
-    def _generate_dm_response(self, sender_email: str, content: str, policy: Dict[str, Any]) -> str:
+    def _generate_dm_response(
+        self,
+        sender_email: str,
+        content: str,
+        policy: Dict[str, Any],
+        sender_full_name: str,
+    ) -> str:
         """Generate LLM response for DM.
 
         Args:
             sender_email: Email address of the sender.
             content: Message content.
             policy: Policy configuration dict.
+            sender_full_name: Sender's display name.
 
         Returns:
             Generated response text.
@@ -320,15 +328,19 @@ class ZulipHandler:
             policy=policy,
             user=self._hash_user_email(sender_email),
             user_email=sender_email,
+            sender_full_name=sender_full_name,
         )
         return response
 
-    def _handle_dm_conversation(self, sender_email: str, content: str) -> str:
+    def _handle_dm_conversation(
+        self, sender_email: str, content: str, sender_full_name: str
+    ) -> str:
         """Handle DM conversation with admin using admin-specific DM policy.
 
         Args:
             sender_email: Email address of the sender.
             content: Message content.
+            sender_full_name: Sender's display name.
 
         Returns:
             Response text from the bot.
@@ -341,7 +353,9 @@ class ZulipHandler:
                 return "⚠️ Sorry, I encountered an error processing your request."
 
             self._store_dm_user_message(sender_email, content, policy)
-            llm_response = self._generate_dm_response(sender_email, content, policy)
+            llm_response = self._generate_dm_response(
+                sender_email, content, policy, sender_full_name
+            )
             self._store_dm_bot_response(sender_email, llm_response, policy)
 
             return llm_response
@@ -455,6 +469,7 @@ class ZulipHandler:
 
             content = msg.get("content", "")
             sender_email = msg.get("sender_email", "")
+            sender_full_name = self._get_sender_display_name(msg)
             llm_messages = [{"role": "user", "content": content}]
 
             llm_response = self.llm_client.generate_response(
@@ -463,13 +478,13 @@ class ZulipHandler:
                 user=self._hash_user_email(sender_email),
                 stream_id=stream_name,
                 topic=subject,
+                sender_full_name=sender_full_name,
             )
 
             logger.info(f"LLM response received: {llm_response[:100]}")
 
             self._store_bot_response_in_pc(stream_name, subject, llm_response, policy)
 
-            sender_full_name = self._get_sender_display_name(msg)
             mention = f"@**{sender_full_name}**"
             stripped_response = llm_response.lstrip()
             if stripped_response.startswith(mention):

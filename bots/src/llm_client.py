@@ -103,6 +103,7 @@ class LLMClient:
         stream_id: Optional[str] = None,
         topic: Optional[str] = None,
         user_email: Optional[str] = None,
+        sender_full_name: Optional[str] = None,
     ) -> str:
         """Generate response from LLM based on policy.
 
@@ -113,6 +114,7 @@ class LLMClient:
             stream_id: Optional stream ID for history storage.
             topic: Optional topic name for history storage.
             user_email: Optional user email for private history.
+            sender_full_name: Optional full name of the sender (for current user display).
 
         Returns:
             Generated response text from LLM.
@@ -126,6 +128,7 @@ class LLMClient:
                 stream_id=stream_id,
                 topic=topic,
                 user_email=user_email,
+                sender_full_name=sender_full_name,
             )
             return convert_latex_to_zulip_katex(response)
         except Exception as e:
@@ -244,6 +247,7 @@ class LLMClient:
         system_prompt: str,
         user_map: Dict[str, str],
         user: str,
+        sender_full_name: Optional[str] = None,
     ) -> List[Dict[str, str]]:
         """Prepare LLM messages with system prompt and user prefixes.
 
@@ -252,12 +256,14 @@ class LLMClient:
             system_prompt: Enhanced system prompt
             user_map: User mapping dict
             user: Current user identifier
+            sender_full_name: Optional full name of the current sender.
 
         Returns:
             List of messages for LLM
         """
         llm_messages = [{"role": "system", "content": system_prompt}]
-        current_user_name = user_map.get(user, user)
+        # Use provided sender_full_name if available, otherwise look up from user_map
+        current_user_name = sender_full_name if sender_full_name else user_map.get(user, user)
 
         for msg in messages:
             if msg["role"] == "user":
@@ -274,6 +280,7 @@ class LLMClient:
         stream_id: Optional[str] = None,
         topic: Optional[str] = None,
         user_email: Optional[str] = None,
+        sender_full_name: Optional[str] = None,
     ) -> str:
         """Generate response with history and tool support.
 
@@ -284,6 +291,7 @@ class LLMClient:
             stream_id: Zulip stream ID (for stream history)
             topic: Topic name (for stream history)
             user_email: User email (for private DM history)
+            sender_full_name: Optional full name of the sender (for current user display).
 
         Returns:
             Response text
@@ -304,7 +312,9 @@ class LLMClient:
         )
         self._log_system_prompt(enhanced_system_prompt)
 
-        llm_messages = self._prepare_llm_messages(messages, enhanced_system_prompt, user_map, user)
+        llm_messages = self._prepare_llm_messages(
+            messages, enhanced_system_prompt, user_map, user, sender_full_name
+        )
 
         tools_enabled = policy.get("tools", {}).get("enabled", False)
         max_iterations = policy.get("tools", {}).get("max_iterations", 10)
