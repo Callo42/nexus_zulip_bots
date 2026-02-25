@@ -192,10 +192,10 @@ def _split_preserving_code_blocks(content: str) -> List[tuple]:
 
 
 def _convert_math_in_text(text: str) -> str:
-    """Convert LaTeX math delimiters in non-code text.
+    r"""Convert LaTeX math delimiters in non-code text.
 
     Handles two conversions:
-      1. Display math: $$...$$ → ```math\\n...\\n```
+      1. Display math: $$...$$ → ```math\n...\n```
       2. Inline math: $...$ → $$...$$
 
     Args:

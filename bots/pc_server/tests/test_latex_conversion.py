@@ -77,7 +77,7 @@ class TestConvertLatexToZulipKatex(unittest.TestCase):
         self.assertIn("$$x + 1$$", result)
 
     def test_escaped_dollar_not_converted(self):
-        """Do not convert escaped dollar signs \\$."""
+        r"""Do not convert escaped dollar signs \$."""
         text = "The price is \\$5 and the value is $x$."
         result = convert_latex_to_zulip_katex(text)
         self.assertIn("\\$5", result)
