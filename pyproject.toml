@@ -53,7 +53,7 @@ whitelist-regex = []
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "2.5.3"
+version = "2.5.4"
 version_files = [
     "pyproject.toml:version",
 ]

@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.5.4 (2026-02-25)
+
+### Docs
+
+- split AGENTS guidance into focused `docs/` files and keep AGENTS as index
+- point `.github/copilot-instructions.md` to `AGENTS.md` via symlink
+- prune redundant docs sections and tighten remaining AGENTS link descriptions
+
 ## 2.5.3 (2026-02-15)
 
 ### Refactor
