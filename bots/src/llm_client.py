@@ -130,7 +130,8 @@ class LLMClient:
                 user_email=user_email,
                 sender_full_name=sender_full_name,
             )
-            return convert_latex_to_zulip_katex(response)
+            formatted_response: str = convert_latex_to_zulip_katex(response)
+            return formatted_response
         except Exception as e:
             logger.error(f"LLM generation failed: {e}", exc_info=True)
             # Don't expose internal error details to users
