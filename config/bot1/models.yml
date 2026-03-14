@@ -21,6 +21,15 @@ models:
       max_tokens: 64000
     formatting: {}
 
+  # Claude Sonnet 4.6
+  claude-sonnet-4-6:
+    description: "Claude Sonnet 4.6 with 1M context window"
+    context_window: 1000000
+    default_params:
+      temperature: 0.5
+      max_tokens: 64000
+    formatting: {}
+
 # Default formatting rules applied to all models
 default_formatting:
   markdown_code_blocks: true

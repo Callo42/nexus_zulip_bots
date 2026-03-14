@@ -35,7 +35,7 @@ policies:
       - **Shared Context**: All messages marked with [History] in the same topic are SHARED among all users in that topic. This is NOT private communication - it is shared group context.
 
       **Response strategy**: Focus on current query, consider relevant historical context from ALL users in the topic, provide new perspectives or ask clarifying questions
-    model: "x-ai/grok-4.1-fast"  # Change to your preferred model
+    model: "claude-sonnet-4-6"  # Change to your preferred model
     temperature: 0.7
     max_tokens: 64000
     triggers:
